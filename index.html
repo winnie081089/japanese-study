@@ -2340,7 +2340,7 @@ function renderVocabTab(lesson, p) {
     }
     return `<div class="${cls}">
       <div class="v-main">
-        <div class="v-top-row"><span class="v-jp">${w.j}</span>${tag}<button class="v-speak-btn" data-speak="${w.j}">🔊</button></div>
+        <div class="v-top-row"><span class="v-jp">${w.j}</span>${tag}<button class="v-speak-btn" data-speak="${w.r}" data-audio="audio/vocab/${String(lesson.id).padStart(2,'0')}_${String(i).padStart(2,'0')}.mp3">🔊</button></div>
         <span class="v-reading">${w.r}</span>
         <span class="v-tw">${w.t}</span>
       </div>
@@ -2384,7 +2384,7 @@ function renderGrammarTab(lesson, p) {
   <div class="g-num">文法 ${i+1}</div>
   <div class="g-pat">${g.p}</div>
   <div class="g-exp">${g.e}</div>
-  ${g.ex.map(ex=>`<div class="g-example"><div class="g-ex-jp">▶ ${ex.j}<button class="v-speak-btn" data-speak="${ex.j}">🔊</button></div><div class="g-ex-tw">　${ex.t}</div></div>`).join('')}
+  ${g.ex.map((ex,ei)=>`<div class="g-example"><div class="g-ex-jp">▶ ${ex.j}<button class="v-speak-btn" data-speak="${ex.j}" data-audio="audio/grammar/${String(lesson.id).padStart(2,'0')}_${i}_${ei}.mp3">🔊</button></div><div class="g-ex-tw">　${ex.t}</div></div>`).join('')}
 </div>`).join('');
   return `
 <div class="grammar-section">
@@ -2738,7 +2738,7 @@ function bindEvents() {
   });
   // ── 發音 ──
   document.querySelectorAll('[data-speak]').forEach(el => {
-    el.addEventListener('click', (e) => { e.stopPropagation(); speak(el.dataset.speak, 0.8); });
+    el.addEventListener('click', (e) => { e.stopPropagation(); playAudio(el.dataset.audio || null, el.dataset.speak); });
   });
   // ── 首頁換角色 ──
   document.querySelectorAll('[data-pick]').forEach(el => {
@@ -3313,7 +3313,7 @@ function renderKanaChart(type, section) {
     : ['a','i','u','e','o'].map(h => `<div class="kana-col-head">${h}</div>`).join('');
   const rows = src.map(row => {
     const cells = row.cells.map(c => c.k
-      ? `<div class="kana-cell" data-speak="${c.k}"><span class="kana-c">${c.k}</span><span class="kana-r">${c.r}</span></div>`
+      ? `<div class="kana-cell" data-speak="${c.k}" data-audio="audio/kana/${c.r}.mp3"><span class="kana-c">${c.k}</span><span class="kana-r">${c.r}</span></div>`
       : `<div class="kana-cell empty"></div>`).join('');
     return `<div class="kana-row-lbl">${row.row}</div>${cells}`;
   }).join('');
@@ -3359,7 +3359,7 @@ function renderKanaQuizUI() {
     }
     return `<button class="${cls}" data-kana-ans="${c}" ${answered?'disabled':''}>${c}</button>`;
   }).join('');
-  if (!kanaQuizState.answered) setTimeout(() => speak(q.k, 0.7), 300);
+  if (!kanaQuizState.answered) setTimeout(() => playAudio(`audio/kana/${q.r}.mp3`, q.k), 300);
   return `
 <div class="kana-quiz-ui">
   <div class="kq-progress">
@@ -3588,6 +3588,17 @@ function speak(text, rate) {
   u.pitch = 1.15;
   if (_jpVoice) u.voice = _jpVoice;
   window.speechSynthesis.speak(u);
+}
+
+function playAudio(src, fallbackText) {
+  if (!soundEnabled) return;
+  if (src) {
+    const audio = new Audio(src);
+    audio.onerror = () => speak(fallbackText, 0.8);
+    audio.play().catch(() => speak(fallbackText, 0.8));
+    return;
+  }
+  speak(fallbackText, 0.8);
 }
 
 function playSound(type) {
