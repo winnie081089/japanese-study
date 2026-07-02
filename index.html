@@ -2372,14 +2372,16 @@ function renderGrammarTab(lesson, p) {
     return quizState.resuming ? renderResumeQuiz() : renderQuizActive();
   }
   const ytId = YT[lesson.id - 1];
-  // file:// 協議下 YouTube iframe 被封鎖，改用縮圖＋點擊開新分頁
+  const canEmbed = location.protocol === 'https:' || location.protocol === 'http:';
   const videoHtml = ytId ? `
 <div class="vid-section">
   <div class="vid-title">🎬 出口仁老師解說影片</div>
-  <a class="yt-thumb-link" href="https://www.youtube.com/watch?v=${ytId}" target="_blank" rel="noopener">
-    <img class="yt-thumb" src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="第${lesson.id}課影片縮圖" loading="lazy">
-    <div class="yt-play-btn">▶ 點擊在 YouTube 觀看</div>
-  </a>
+  ${canEmbed
+    ? `<div class="vid-wrap"><iframe src="https://www.youtube.com/embed/${ytId}" title="第${lesson.id}課影片" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`
+    : `<a class="yt-thumb-link" href="https://www.youtube.com/watch?v=${ytId}" target="_blank" rel="noopener">
+        <img class="yt-thumb" src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="第${lesson.id}課影片縮圖" loading="lazy">
+        <div class="yt-play-btn">▶ 點擊在 YouTube 觀看</div>
+       </a>`}
 </div>` : '';
   const grammarHtml = getFullGrammar(lesson).map((g,i) => `
 <div class="g-point">
