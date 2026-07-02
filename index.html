@@ -2270,13 +2270,13 @@ function renderReview(reviewId) {
 
   let content = '';
   if (currentTab === 0) {
-    if (quizState && !quizState.finished && quizState.reviewId === reviewId && quizState.type === 'rvocab') return wrapReview(rg, rp, tabHtml, quizState.resuming ? renderResumeQuiz() : renderQuizActive());
+    if (quizState && quizState.reviewId === reviewId && quizState.type === 'rvocab') return wrapReview(rg, rp, tabHtml, quizState.resuming ? renderResumeQuiz() : renderQuizActive());
     content = renderReviewIntro(rg, rp, 'rvocab', '單字複習測驗', '從 5 課中隨機抽 30 題單字', rp.vocabScore);
   } else if (currentTab === 1) {
-    if (quizState && !quizState.finished && quizState.reviewId === reviewId && quizState.type === 'rgrammar') return wrapReview(rg, rp, tabHtml, quizState.resuming ? renderResumeQuiz() : renderQuizActive());
+    if (quizState && quizState.reviewId === reviewId && quizState.type === 'rgrammar') return wrapReview(rg, rp, tabHtml, quizState.resuming ? renderResumeQuiz() : renderQuizActive());
     content = renderReviewIntro(rg, rp, 'rgrammar', '文法複習測驗', '從 5 課文法題庫中抽 25 題', rp.grammarScore);
   } else {
-    if (quizState && !quizState.finished && quizState.reviewId === reviewId && quizState.type === 'rfull') return wrapReview(rg, rp, tabHtml, quizState.resuming ? renderResumeQuiz() : renderQuizActive());
+    if (quizState && quizState.reviewId === reviewId && quizState.type === 'rfull') return wrapReview(rg, rp, tabHtml, quizState.resuming ? renderResumeQuiz() : renderQuizActive());
     content = renderReviewIntro(rg, rp, 'rfull', '五課總複習測驗', '單字＋文法混合，共約 35 題', rp.fullScore);
   }
   return wrapReview(rg, rp, tabHtml, content);
@@ -2315,7 +2315,7 @@ function renderReviewIntro(rg, rp, type, title, desc, prevScore) {
 
 // ─── VOCAB TAB ───────────────────────────────────────────────
 function renderVocabTab(lesson, p) {
-  if (quizState && !quizState.finished && quizState.lessonId === lesson.id && quizState.type === 'vocab') {
+  if (quizState && quizState.lessonId === lesson.id && quizState.type === 'vocab') {
     return quizState.resuming ? renderResumeQuiz() : renderQuizActive();
   }
   // weakVocab: 需加強（剛答錯，尚未處理）
@@ -2371,7 +2371,7 @@ function renderVocabTab(lesson, p) {
 // ─── GRAMMAR TAB ─────────────────────────────────────────────
 function renderGrammarTab(lesson, p) {
   // 如果目前有進行中的文法測驗，顯示測驗畫面
-  if (quizState && !quizState.finished && quizState.lessonId === lesson.id && quizState.type === 'grammar') {
+  if (quizState && quizState.lessonId === lesson.id && quizState.type === 'grammar') {
     return quizState.resuming ? renderResumeQuiz() : renderQuizActive();
   }
   const ytId = YT[lesson.id - 1];
@@ -2402,7 +2402,7 @@ function renderGrammarTab(lesson, p) {
 
 // ─── QUIZ TAB ────────────────────────────────────────────────
 function renderQuizTab(lesson, p) {
-  if (quizState && !quizState.finished && quizState.lessonId === lesson.id && quizState.type === 'full') {
+  if (quizState && quizState.lessonId === lesson.id && quizState.type === 'full') {
     return quizState.resuming ? renderResumeQuiz() : renderQuizActive();
   }
   return `
@@ -2615,7 +2615,7 @@ function renderQuizResult() {
   let allDoneMsg = '';
   let weakCount = 0;
   let retryBtn = '';
-  let backBtn = `<button class="btn-primary" data-nav="list">返回課程列表</button>`;
+  let backBtn = `<button class="btn-primary" data-nav="list" data-clear-quiz="1">返回課程列表</button>`;
 
   if (isReview) {
     const rp = getReviewProg(reviewId);
@@ -2650,7 +2650,7 @@ function renderQuizResult() {
       ? '<div class="pass-msg">🎊 三項測驗全部完成，本課標記為完成！</div>'
       : missing.length ? `<div class="todo-msg">還差 ${missing.join('、')} 才算完成本課</div>` : '';
     retryBtn = `<button class="btn-secondary" data-start-quiz="${type}" data-lid="${lessonId}">再做一次</button>`;
-    if (type === 'vocab') backBtn = `<button class="btn-outline" data-nav="lesson" data-id="${lessonId}" data-go-tab="0">查看需加強單字</button>${backBtn}`;
+    if (type === 'vocab') backBtn = `<button class="btn-outline" data-nav="lesson" data-id="${lessonId}" data-go-tab="0" data-clear-quiz="1">查看需加強單字</button>${backBtn}`;
   }
 
   const details = questions.map((q,i) => {
@@ -2683,6 +2683,7 @@ function bindEvents() {
       const id = el.dataset.id ? parseInt(el.dataset.id) : null;
       const reviewId = el.dataset.reviewId || null;
       const goTab = el.dataset.goTab !== undefined ? parseInt(el.dataset.goTab) : 0;
+      if (el.dataset.clearQuiz) quizState = null;
       if (quizState && !quizState.finished) quizState.resuming = true;
       if (kanaQuizState && kanaQuizState.current < (kanaQuizState.questions||[]).length) kanaQuizState.resuming = true;
       if (view === 'review' && reviewId) navigate('review', { reviewId, tab: 0 });
