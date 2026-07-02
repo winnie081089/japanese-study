@@ -93,6 +93,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .qz-result{text-align:center;padding:28px 16px;}
 .qz-score{font-size:3.2rem;font-weight:700;color:var(--red);}
 .qz-score.pass{color:var(--green);}
+@keyframes emojifall{0%{transform:translateY(-80px) rotate(-10deg);opacity:1;}100%{transform:translateY(110vh) rotate(15deg);opacity:.8;}}
+.emoji-rain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100;overflow:hidden;}
+.emoji-drop{position:absolute;top:0;animation:emojifall linear infinite;}
 .qz-msg{font-size:1rem;margin:8px 0 20px;}
 /* Misc */
 .sec-ttl{font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:10px;}
@@ -2574,6 +2577,18 @@ function renderQuizCompanion() {
 </div>`;
 }
 
+function renderEmojiRain() {
+  const emoji = {rabbit:'🥕', bwcat:'🐟', ocat:'🦁'}[cwCompanion] || '⭐';
+  const drops = Array.from({length:22}, (_,i) => {
+    const left = ((i * 4.5) % 98).toFixed(1);
+    const dur  = (2.0 + (i % 5) * 0.4 + (i % 3) * 0.3).toFixed(1);
+    const delay= ((i % 7) * 0.45).toFixed(1);
+    const size = (1.4 + (i % 3) * 0.3).toFixed(1);
+    return `<div class="emoji-drop" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${emoji}</div>`;
+  }).join('');
+  return `<div class="emoji-rain">${drops}</div>`;
+}
+
 function renderCompanionResult(score) {
   const c = COMPANIONS.find(x => x.id === cwCompanion) || COMPANIONS[0];
   const category = score === 100 ? 'perfect' : score >= 70 ? 'done' : 'wrong';
@@ -2644,6 +2659,7 @@ function renderQuizResult() {
   }).join('');
 
   return `
+${renderEmojiRain()}
 <div class="quiz-result">
   ${renderCompanionResult(score)}
   <div class="result-score">${score}<span class="result-unit">分</span></div>
@@ -3325,6 +3341,7 @@ function renderKanaQuizUI() {
   if (current >= questions.length) {
     const pct = Math.round(score/questions.length*100);
     return `
+${renderEmojiRain()}
 <div class="kq-result">
   ${renderCompanionResult(pct)}
   <div class="kq-big">${score}<span class="kq-total">/${questions.length}</span></div>
