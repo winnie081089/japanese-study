@@ -2077,6 +2077,7 @@ let kanaType = 'hiragana';
 let kanaSection = 'basic';
 let kanaMode = 'k2r';
 let kanaQuizState = null;
+let kanaReadDelay = 300;
 let quizCharAnim = 'anim-bob';
 let quizBubbleText = '';
 let _quizAnimTimer = null;
@@ -2797,7 +2798,7 @@ function bindEvents() {
     el.addEventListener('click', () => {
       const a = el.dataset.kanaAction;
       if (a==='start') startKanaQuiz();
-      else if (a==='next') { speakCompanion(cwCompanion); advanceKanaQuiz(); }
+      else if (a==='next') { speakCompanion(cwCompanion); kanaReadDelay = 950; advanceKanaQuiz(); }
       else if (a==='retry') startKanaQuiz();
       else if (a==='back') { kanaQuizState=null; navigate('gojuuon'); }
     });
@@ -3377,7 +3378,7 @@ ${renderEmojiRain()}
     }
     return `<button class="${cls}" data-kana-ans="${c}" ${answered?'disabled':''}>${c}</button>`;
   }).join('');
-  if (!kanaQuizState.answered) setTimeout(() => playAudio(`audio/kana/${q.r}.mp3`, q.k), 300);
+  if (!kanaQuizState.answered) { setTimeout(() => playAudio(`audio/kana/${q.r}.mp3`, q.k), kanaReadDelay); kanaReadDelay = 300; }
   return `
 <div class="kana-quiz-ui">
   <div class="kq-progress">
