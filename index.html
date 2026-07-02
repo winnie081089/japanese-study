@@ -3553,20 +3553,9 @@ function fixParticles(text) {
 }
 
 function speakCompanion(id) {
-  if (!soundEnabled || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const cfg = {
-    rabbit: { text: 'にんじん！',  lang: 'ja-JP', pitch: 1.5, rate: 1.1 },
-    bwcat:  { text: 'ミミ！',     lang: 'ja-JP', pitch: 1.3, rate: 0.95 },
-    ocat:   { text: 'めめ！',      lang: 'ja-JP', pitch: 1.4, rate: 1.1 },
-  }[id];
-  if (!cfg) return;
-  const u = new SpeechSynthesisUtterance(cfg.text);
-  u.lang  = cfg.lang;
-  u.pitch = cfg.pitch;
-  u.rate  = cfg.rate;
-  if (cfg.lang === 'ja-JP' && _jpVoice) u.voice = _jpVoice;
-  window.speechSynthesis.speak(u);
+  if (!soundEnabled) return;
+  if (!['rabbit','bwcat','ocat'].includes(id)) return;
+  playAudio(`audio/${id}.mp3`, {rabbit:'にんじん！',bwcat:'ミミ！',ocat:'めめ！'}[id]);
 }
 
 function hiraganaToKatakana(str) {
