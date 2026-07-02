@@ -2376,7 +2376,7 @@ function renderGrammarTab(lesson, p) {
 <div class="vid-section">
   <div class="vid-title">🎬 出口仁老師解說影片</div>
   <div class="vid-wrap">
-    <iframe src="https://www.youtube.com/embed/videoseries?list=PLynCeSdpMqxCW-AfMtmIlASAMUVq8wX6k&index=${lesson.id - 1}&rel=0" title="第${lesson.id}課影片" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/${ytId}?rel=0" title="第${lesson.id}課影片" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
   </div>
 </div>` : '';
   const grammarHtml = getFullGrammar(lesson).map((g,i) => `
